@@ -110,6 +110,25 @@ def progressUpdate(tid):
     
     return "Task has been marked complete"
 
+@app.route('/home', methods = ["Get"])
+def home():
+    #d = make_summary()
+    #return jsonify(d)
+    connection = connectPG()
+    cursor = connection.cursor()
+    hpage = request.json['progress']
+    progress = "SELECT c_t.cid as cid, checklist.email as email, checklist.company as company, isonboarding, t.s * 100 / count(task.tid) as progress\
+                FROM task \
+                    CROSS JOIN (SELECT COUNT(CASE WHEN task.iscomplete THEN 1 END) AS s FROM task) t \
+                        JOIN c_t ON c_t.tid = task.tid \
+                    JOIN checklist ON checklist.cid = c_t.cid \
+                        GROUP BY c_t.cid, email, company, isonboarding, t.s \
+                WHERE t.progress = {}".format(hpage)    
+    cursor.execute(query)
+    colnames = [desc[0] for desc in cursor.description]
+    records = cursor.fetchall()
+    cursor.close()
+    connection.close()
 
 
 if __name__ == "__main__":
