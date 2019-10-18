@@ -106,6 +106,8 @@ def progressUpdate(tid):
     update = f"UPDATE task SET iscomplete = true WHERE tid = {tid}"
     cursor.execute(update)
     connection.commit()
+
+    
     return "Task has been marked complete"
 
 
