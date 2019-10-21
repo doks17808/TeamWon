@@ -185,7 +185,7 @@ def savedChecklist(cid):
         task['description'] = records[x][4]
         task['reminder'] = records[x][5]
         tasklist.append(task)
-    savedChecklist = {"cid":records[0][0], "name":records[0][1], "company":records[0][2]}
+    savedChecklist = {"cid":records[0][0], "name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
     savedChecklist['tasks'] = tasklist
     return jsonify(savedChecklist)
 
