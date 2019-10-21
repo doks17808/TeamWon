@@ -95,7 +95,7 @@ def dbentry():
 
     task_string = ""
     for index in range(len(tidList)):
-        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{tidList[index]['tid']}'>Mark As Complete</a>"
+        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{tidList[index]['tid']}'>Click Here to Mark As Complete</a>"
     print(task_string)
 
     try:
