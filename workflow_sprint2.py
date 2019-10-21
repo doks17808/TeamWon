@@ -202,6 +202,23 @@ def savetemplate():
 
     return json.dumps({"Status Code":200})
 
+
+@app.route('/alltemplates', methods = ["GET"])
+def alltempaltes():
+    connection = connectPG()
+    cursor = connection.cursor()
+    query = f"Select ct_id, checklist_name from checklist_template"
+    cursor.execute(query)
+    records = cursor.fetchall()
+    colnames = ['ct_id', 'name']
+    results = []
+    for row in records:
+            results.append(dict(zip(colnames, row)))
+    cursor.close()
+    connection.close()
+    return jsonify(results)
+
+
 @app.route('/gettemplate/<int:ct_id>', methods = ["GET"])
 def gettemplate(ct_id):
     connection = connectPG()
