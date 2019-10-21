@@ -36,7 +36,10 @@ def dbentry():
     #Inserting into Checklist Table
     isOnboarding = request.json['isOnboarding']
     company = request.json['company']
-    name = request.json['name']
+    try:
+        name = request.json['name']
+    except: name = "Un-named"
+
 
     checklist_query = f"INSERT INTO checklist (isOnboarding, company, name)\
         VALUES '{isOnboarding}', '{company}', '{name}) RETURNING cid"
