@@ -119,6 +119,28 @@ def progressUpdate(cid, coid, tid):
 
 
 
+
+@app.route('/details/<int:cid>/<int:coid>', methods = ["GET"])
+def details(cid, coid):
+    connection = connectPG()
+    cursor = connection.cursor()
+    detailquery = f"SELECT first_name, last_name, company, isonboarding, date, description, iscomplete\
+        from progress p\
+        join task t on p.tid = t.tid\
+        join checklist c on c.cid = p.cid\
+        join consultant co on co.coid = p.coid\
+        where p.cid = {cid} and p.coid = {coid}"
+    cursor.execute(detailquery)
+    record = cursor.fetchall()
+    colnames = ['first_name','last_name','company','isOnboarding','date','description','isComplete']
+    results = []
+    for row in record:
+            results.append(dict(zip(colnames, row)))
+    cursor.close()
+    connection.close()
+    return jsonify(results)
+
+
 if __name__ == "__main__":
 
     app.run(debug=True)
