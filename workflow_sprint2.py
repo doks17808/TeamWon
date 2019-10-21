@@ -41,7 +41,7 @@ def dbentry():
     except: name = "Un-named"
 
 
-    checklist_query = f"INSERT INTO checklist (isonboarding, company, name)\
+    checklist_query = f"INSERT INTO checklist (isonboarding, company, checklist_name)\
         VALUES ('{isOnboarding}', '{company}', '{name}') RETURNING cid"
     cursor.execute(checklist_query)
     cid = cursor.fetchone()[0]
@@ -68,14 +68,11 @@ def dbentry():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        
-        taskquery = f"INSERT INTO task (description,reminder) VALUES ('{description}', '{reminder}') RETURNING tid"
+        taskquery = f"INSERT INTO task (description, reminder) VALUES ('{description}', '{reminder}') RETURNING tid"
         cursor.execute(taskquery)
         tid = cursor.fetchone()[0]
         tidList.append({"tid":tid, "description":description})
-        joinquery = f"INSERT INTO c_t (cid, tid) VALUES ({cid},{tid})"
         progressquery = f"INSERT INTO progress (cid, coid, tid, date) VALUES ({cid}, {coid}, {tid}, '{date}')"
-        cursor.execute(joinquery)
         cursor.execute(progressquery)
         connection.commit()
     cursor.close()
@@ -95,7 +92,7 @@ def dbentry():
 
     task_string = ""
     for index in range(len(tidList)):
-        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{cid}/{coid}/{tidList[index]['tid']}'>Click Here to Mark As Complete</a>"
+        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{cid}/{tidList[index]['tid']}'>Click Here to Mark As Complete</a>"
     print(task_string)
 
     try:
@@ -108,11 +105,11 @@ def dbentry():
 
 
 
-@app.route('/progress/<int:cid>/<int:coid>/<int:tid>', methods = ["GET"])
-def progressUpdate(cid, coid, tid):
+@app.route('/progress/<int:cid>/<int:tid>', methods = ["GET"])
+def progressUpdate(cid, tid):
     connection = connectPG()
     cursor = connection.cursor()
-    update = f"UPDATE progress SET iscomplete = true WHERE cid = {cid} and coid = {coid} and tid = {tid}"
+    update = f"UPDATE progress SET iscomplete = true WHERE cid = {cid} and tid = {tid}"
     cursor.execute(update)
     connection.commit()
     return json.dumps({"Status Code 200": "Task has been marked complete"})
@@ -120,8 +117,8 @@ def progressUpdate(cid, coid, tid):
 
 
 
-@app.route('/details/<int:cid>/<int:coid>', methods = ["GET"])
-def details(cid, coid):
+@app.route('/details/<int:cid>', methods = ["GET"])
+def details(cid):
     connection = connectPG()
     cursor = connection.cursor()
     detailquery = f"SELECT first_name, last_name, company, isonboarding, date, description, iscomplete\
@@ -129,7 +126,7 @@ def details(cid, coid):
         join task t on p.tid = t.tid\
         join checklist c on c.cid = p.cid\
         join consultant co on co.coid = p.coid\
-        where p.cid = {cid} and p.coid = {coid}"
+        where p.cid = {cid}"
     cursor.execute(detailquery)
     record = cursor.fetchall()
     colnames = ['first_name','last_name','company','isOnboarding','date','description','isComplete']
@@ -144,7 +141,7 @@ def details(cid, coid):
 def home():
     connection = connectPG()
     cursor = connection.cursor()
-    query = "SELECT consultant.coid as consultant_id, concat(first_name, ' ', last_name) Consultant, progress.cid, checklist.company as Client, checklist.isOnboarding as Transition, progress.date as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(progress.tid) AS progress \
+    query = "SELECT concat(first_name, ' ', last_name) Consultant, progress.cid, checklist.company as Client, checklist.isOnboarding as Transition, progress.date as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(progress.tid) AS progress \
                 FROM consultant \
                     JOIN progress ON progress.coid = consultant.coid \
                     JOIN checklist ON checklist.cid = progress.cid \
@@ -152,7 +149,7 @@ def home():
                     order by consultant, consultant_id"
     cursor.execute(query)
     records = cursor.fetchall()
-    colnames = ['coid','consultant','cid','company','isOnboarding','date','progress']
+    colnames = ['consultant','cid','company','isOnboarding','date','progress']
 
     results = []
     for row in records:
@@ -168,15 +165,52 @@ def home():
 
 
 
-@app.route('/savedChecklist/<int:cid>', methods = ["GET"])
-def savedChecklist(cid):
+
+
+@app.route('/savetemplate', methods = ["POST"])
+def savetemplate():
     connection = connectPG()
     cursor = connection.cursor()
-    query = f"select c.cid, c.name, isonboarding, company, description, reminder\
-        from checklist c\
-        join c_t on c.cid = c_t.cid\
-        join task t on t.tid = c_t.tid\
-        where c.cid = {cid}"
+
+    #Inserting into Checklist Table
+    isOnboarding = request.json['isOnboarding']
+    company = request.json['company']
+    try:
+        name = request.json['name']
+    except: name = "Un-named"
+
+
+    checklist_query = f"INSERT INTO checklist_template (isonboarding, company, checklist_name)\
+        VALUES ('{isOnboarding}', '{company}', '{name}') RETURNING ct_id"
+    cursor.execute(checklist_query)
+    ctid = cursor.fetchone()[0]
+    connection.commit()
+
+    #Inserting into Task Table and status table
+    Task = request.json['tasks']
+    for x in range(len(Task)):
+        description = Task[x]['description']
+        reminder = Task[x]['reminder']
+        taskquery = f"INSERT INTO task_template (description,reminder) VALUES ('{description}', '{reminder}') RETURNING tt_id"
+        cursor.execute(taskquery)
+        ttid = cursor.fetchone()[0]
+        joinquery = f"INSERT INTO c_t (ct_id, tt_id) VALUES ({ctid},{ttid})"
+        cursor.execute(joinquery)
+        connection.commit()
+    cursor.close()
+    connection.close()
+
+    return json.dumps({"Status Code":200})
+
+@app.route('/gettemplate/<int:ct_id>', methods = ["GET"])
+def gettemplate(ct_id):
+    connection = connectPG()
+    cursor = connection.cursor()
+    query = f"select ct.ct_id, ct.checklist_name, isonboarding, company, description, reminder\
+        from checklist_template ct\
+        join c_t on ct.ct_id = c_t.ct_id\
+        join task_template tt on tt.tt_id = c_t.tt_id\
+        where ct.ct_id = {ct_id}"
     cursor.execute(query)
     records = cursor.fetchall()
     tasklist = []
@@ -185,10 +219,11 @@ def savedChecklist(cid):
         task['description'] = records[x][4]
         task['reminder'] = records[x][5]
         tasklist.append(task)
-    savedChecklist = {"cid":records[0][0], "name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
+    savedChecklist = {"name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
     savedChecklist['tasks'] = tasklist
     return jsonify(savedChecklist)
 
+    
 if __name__ == "__main__":
 
     app.run(debug=True)
