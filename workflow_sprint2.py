@@ -135,7 +135,7 @@ def details(cid, coid):
     colnames = ['first_name','last_name','company','isOnboarding','date','description','isComplete']
     results = []
     for row in record:
-            results.append(dict(zip(colnames, row)))
+        results.append(dict(zip(colnames, row)))
     cursor.close()
     connection.close()
     return jsonify(results)
@@ -165,6 +165,29 @@ def home():
     except:
         return jsonify(0)
 
+
+
+
+@app.route('/savedChecklist/<int:cid>', methods = ["GET"])
+def savedChecklist(cid):
+    connection = connectPG()
+    cursor = connection.cursor()
+    query = f"select c.cid, c.name, isonboarding, company, description, reminder\
+        from checklist c\
+        join c_t on c.cid = c_t.cid\
+        join task t on t.tid = c_t.tid\
+        where c.cid = {cid}"
+    cursor.execute(query)
+    records = cursor.fetchall()
+    tasklist = []
+    for x in range(len(records)):
+        task = {}
+        task['description'] = records[x][4]
+        task['reminder'] = records[x][5]
+        tasklist.append(task)
+    savedChecklist = {"cid":records[0][0], "name":records[0][1], "company":records[0][2]}
+    savedChecklist['tasks'] = tasklist
+    return jsonify(savedChecklist)
 
 if __name__ == "__main__":
 
