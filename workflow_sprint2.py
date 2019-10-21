@@ -41,8 +41,8 @@ def dbentry():
     except: name = "Un-named"
 
 
-    checklist_query = f"INSERT INTO checklist (isOnboarding, company, name)\
-        VALUES '{isOnboarding}', '{company}', '{name}) RETURNING cid"
+    checklist_query = f"INSERT INTO checklist (isonboarding, company, name)\
+        VALUES ('{isOnboarding}', '{company}', '{name}') RETURNING cid"
     cursor.execute(checklist_query)
     cid = cursor.fetchone()[0]
     connection.commit()
@@ -56,7 +56,7 @@ def dbentry():
     last_name = name_2[0].capitalize()
 
     consultant_query = f"INSERT INTO consultant (first_name, last_name, email)\
-        VALUES ('{first_name}', '{last_name} '{email}') RETURNING coid"
+        VALUES ('{first_name}', '{last_name}', '{email}') RETURNING coid"
     cursor.execute(consultant_query)
     coid = cursor.fetchone()[0]
     connection.commit()
@@ -74,9 +74,9 @@ def dbentry():
         tid = cursor.fetchone()[0]
         tidList.append({"tid":tid, "description":description})
         joinquery = f"INSERT INTO c_t (cid, tid) VALUES ({cid},{tid})"
-        statusquery = f"INSERT INTO status (cid, coid, tid, date) VALUES ({cid}, {coid}, {tid}, {date})"
+        progressquery = f"INSERT INTO progress (cid, coid, tid, date) VALUES ({cid}, {coid}, {tid}, '{date}')"
         cursor.execute(joinquery)
-        cursor.execute(statusquery)
+        cursor.execute(progressquery)
         connection.commit()
     cursor.close()
     connection.close()
@@ -95,7 +95,7 @@ def dbentry():
 
     task_string = ""
     for index in range(len(tidList)):
-        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{tidList[index]['tid']}'>Click Here to Mark As Complete</a>"
+        task_string += f"<br>-{tidList[index]['description']} <a href='http://127.0.0.1:5000/progress/{cid}/{coid}/{tidList[index]['tid']}'>Click Here to Mark As Complete</a>"
     print(task_string)
 
     try:
@@ -108,11 +108,11 @@ def dbentry():
 
 
 
-@app.route('/progress/<int:tid>', methods = ["GET"])
-def progressUpdate(tid):
+@app.route('/progress/<int:cid>/<int:coid>/<int:tid>', methods = ["GET"])
+def progressUpdate(cid, coid, tid):
     connection = connectPG()
     cursor = connection.cursor()
-    update = f"UPDATE task SET iscomplete = true WHERE tid = {tid}"
+    update = f"UPDATE progress SET iscomplete = true WHERE cid = {cid} and coid = {coid} and tid = {tid}"
     cursor.execute(update)
     connection.commit()
     return json.dumps({"Status Code 200": "Task has been marked complete"})
