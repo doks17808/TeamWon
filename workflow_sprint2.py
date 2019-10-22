@@ -136,7 +136,7 @@ def progressUpdate(checklist_id, task_id):
     cursor.execute(update)
     cursor.execute(date)
     connection.commit()
-    return redirect("http://localhost:4200")
+    return redirect(f"http://localhost:4200/confirm/{checklist_id}")
 
 
 
