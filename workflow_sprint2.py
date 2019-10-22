@@ -120,7 +120,7 @@ def dbentry():
     try:
         msg = Message(f"{company} {transition} Checklist for {first_name} {last_name}", sender="donotreply.daughertytransitions@gmail.com", recipients=[f"{email}"])
         msg.html = f"<h2 style='text-align: center; font-family:arial,helvetica,sans-serif;'>{company} {transition} Checklist for {first_name} {last_name}</h2>\
-            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>To smooth the tranisition between engagements your team manager has compiled \
+            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>To smooth the transition between engagements your team manager has compiled \
             a list of the following task that must be completed.&nbsp;</p>\
             <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p><p>&nbsp;</p><ol>{task_string}</ol>\
             <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;Thank you,</p>\
@@ -287,12 +287,13 @@ def gettemplate(checklisttemplate_id):
     cursor = connection.cursor()
     query = f'select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
         from checklist_template ct\
-        join template_join on ct.checklisttemplate_id = template_join.checklisttemplate_id\
+        join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
         join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
         where ct.checklisttemplate_id = {checklisttemplate_id}'
     cursor.execute(query)
     records = cursor.fetchall()
     tasklist = []
+    print(records)
     for x in range(len(records)):
         task = {}
         task['description'] = records[x][4]
