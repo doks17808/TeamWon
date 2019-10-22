@@ -73,7 +73,7 @@ def dbentry():
         task_id = cursor.fetchone()[0]
         tidList.append({"task_id":task_id, "description":description})
         progressquery = f"INSERT INTO progress (checklist_id, task_id) VALUES ({checklist_id}, {task_id})"
-        checklist_taskQuery = f"INSERT INTO checklist_task (checklist_id, task_id, consultant_id, date_sent) VALUES ({checklist_id}, {task_id}, {consultant_id}, '{date}')"
+        checklist_taskQuery = f"INSERT INTO checklist_task_join (checklist_id, task_id, consultant_id, date_sent) VALUES ({checklist_id}, {task_id}, {consultant_id}, '{date}')"
         cursor.execute(checklist_taskQuery)
         cursor.execute(progressquery)
         connection.commit()
@@ -187,9 +187,9 @@ def savetemplate():
 
 
     checklist_query = f"INSERT INTO checklist_template (isonboarding, company, checklist_name)\
-        VALUES ('{isOnboarding}', '{company}', '{name}') RETURNING checklisttemplate_id"
+        VALUES ('{isOnboarding}', '{company}', '{name}') RETURNING checklistTemplate_id"
     cursor.execute(checklist_query)
-    checklisttemplate_id = cursor.fetchone()[0]
+    checklistTemplate_id = cursor.fetchone()[0]
     connection.commit()
 
     #Inserting into Task Table and status table
@@ -197,10 +197,10 @@ def savetemplate():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        taskquery = f"INSERT INTO task_template (description,reminder) VALUES ('{description}', '{reminder}') RETURNING tasktemplate_id"
+        taskquery = f"INSERT INTO task_template (description,reminder) VALUES ('{description}', '{reminder}') RETURNING taskTemplate_id"
         cursor.execute(taskquery)
-        tasktemplate_id = cursor.fetchone()[0]
-        joinquery = f"INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})"
+        taskTemplate_id = cursor.fetchone()[0]
+        joinquery = f"INSERT INTO template_join (checklistTemplate_id, taskTemplate_id) VALUES ({checklistTemplate_id},{taskTemplate_id})"
         cursor.execute(joinquery)
         connection.commit()
     cursor.close()
@@ -213,13 +213,13 @@ def savetemplate():
 def alltempaltes():
     connection = connectPG()
     cursor = connection.cursor()
-    query = f"Select checklisttemplate_id, checklist_name\
+    query = f"Select checklistTemplate_id, checklist_name\
                 from checklist_template ct\
-                join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
-                join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id"
+                join template_join tj on ct.checklistTemplate_id = tj.checklistTemplate_id\
+                join task_template tt on tt.taskTemplate_id = tj.taskTemplate_id"
     cursor.execute(query)
     records = cursor.fetchall()
-    colnames = ['checklisttemplate_id', 'name']
+    colnames = ['checklistTemplate_id', 'name']
     results = []
     for row in records:
             results.append(dict(zip(colnames, row)))
@@ -228,15 +228,15 @@ def alltempaltes():
     return jsonify(results)
 
 
-@app.route('/gettemplate/<int:checklisttemplate_id>', methods = ["GET"])
-def gettemplate(checklisttemplate_id):
+@app.route('/gettemplate/<int:checklistTemplate_id>', methods = ["GET"])
+def gettemplate(checklistTemplate_id):
     connection = connectPG()
     cursor = connection.cursor()
-    query = f"select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
+    query = f"select ct.checklistTemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
         from checklist_template ct\
-        join template_join on ct.checklisttemplate_id = template_join.checklisttemplate_id\
-        join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
-        where ct.checklisttemplate_id = {checklisttemplate_id}"
+        join template_join on ct.checklistTemplate_id = template_join.checklistTemplate_id\
+        join task_template tt on tt.taskTemplate_id = tj.taskTemplate_id\
+        where ct.checklistTemplate_id = {checklistTemplate_id}"
     cursor.execute(query)
     records = cursor.fetchall()
     tasklist = []
