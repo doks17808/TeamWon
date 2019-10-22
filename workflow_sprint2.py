@@ -136,9 +136,6 @@ def progressUpdate(checklist_id, task_id):
     cursor.execute(update)
     cursor.execute(date)
     connection.commit()
-    #return "Task has been marked as complete"
-    print('task complete')
-    time.sleep(5)
     return redirect("http://localhost:4200")
 
 
