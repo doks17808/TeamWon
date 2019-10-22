@@ -141,11 +141,12 @@ def details(cid):
 def home():
     connection = connectPG()
     cursor = connection.cursor()
-    query = "SELECT consultant.coid as consultant_id, concat(first_name, ' ', last_name) Consultant, progress.cid, checklist.company as Client, checklist.isOnboarding as Transition, progress.date as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(progress.tid) AS progress \
+    query = "SELECT consultant.consultant_id as consultant_id, concat(first_name, ' ', last_name) Consultant, checklist_task_join.checklist_id as cid, checklist.company as Client, checklist.isOnboarding as Transition, progress.date_complete as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(checklist_task_join.task_id) AS progress \
                 FROM consultant \
-                    JOIN progress ON progress.coid = consultant.coid \
-                    JOIN checklist ON checklist.cid = progress.cid \
-                    GROUP BY consultant_id, Consultant, progress.cid, Client, Transition, DateSent \
+                    JOIN checklist_task_join ON checklist_task_join.consultant_id = consultant.consultant_id \
+                    JOIN progress ON progress.checklist_id = checklist_task_join.checklist_id \
+                    JOIN checklist ON checklist.checklist_id = checklist_task_join.checklist_id \
+                    GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent"
     cursor.execute(query)
     records = cursor.fetchall()
     colnames = ['consultant_id','consultant','cid','company','isOnboarding','date','progress']
