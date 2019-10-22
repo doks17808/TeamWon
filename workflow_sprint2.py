@@ -60,8 +60,8 @@ def dbentry():
     except: name = "Un-named"
 
 
-    checklist_query = f'INSERT INTO checklist (isonboarding, company, checklist_name)\
-        VALUES (%s, %s, %s) RETURNING checklist_id'
+    checklist_query = f"INSERT INTO checklist (isonboarding, company, checklist_name)\
+        VALUES (%s, %s, %s) RETURNING checklist_id"
     cursor.execute(checklist_query, (isOnboarding, company, name))
     checklist_id = cursor.fetchone()[0]
     connection.commit()
@@ -74,8 +74,8 @@ def dbentry():
     first_name = name[0].capitalize()
     last_name = name_2[0].capitalize()
 
-    consultant_query = f'INSERT INTO consultant (first_name, last_name, email)\
-        VALUES (%s, %s, %s) RETURNING consultant_id'
+    consultant_query = f"INSERT INTO consultant (first_name, last_name, email)\
+        VALUES (%s, %s, %s) RETURNING consultant_id"
     cursor.execute(consultant_query, (first_name, last_name, email))
     consultant_id = cursor.fetchone()[0]
     connection.commit()
@@ -87,11 +87,11 @@ def dbentry():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        taskquery = f'INSERT INTO task (description, reminder) VALUES (%s, %s) RETURNING task_id'
+        taskquery = f"INSERT INTO task (description, reminder) VALUES (%s, %s) RETURNING task_id"
         cursor.execute(taskquery, (description, reminder))
         task_id = cursor.fetchone()[0]
         tidList.append({"task_id":task_id, "description":description})
-        progressquery = f'INSERT INTO progress (checklist_id, task_id) VALUES ({checklist_id}, {task_id})'
+        progressquery = f"INSERT INTO progress (checklist_id, task_id) VALUES ({checklist_id}, {task_id})"
         checklist_taskQuery = f"INSERT INTO checklist_task_join (checklist_id, task_id, consultant_id, date_sent) VALUES ({checklist_id}, {task_id}, {consultant_id}, '{date}')"
         cursor.execute(checklist_taskQuery)
         cursor.execute(progressquery)
@@ -137,8 +137,8 @@ def progressUpdate(checklist_id, task_id):
     connection = connectPG()
     cursor = connection.cursor()
     date = datetime.now()
-    update = f'UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}'
-    date = f'UPDATE progress SET date_complete = "{date}" where checklist_id = {checklist_id} and task_id = {task_id}'
+    update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
+    date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
     cursor.execute(update)
     cursor.execute(date)
     connection.commit()
@@ -186,17 +186,18 @@ def home():
     except:
         return jsonify(0)
 
+
 @app.route('/details/<int:checklist_id>', methods = ["GET"])
 def details(checklist_id):
     connection = connectPG()
     cursor = connection.cursor()
-    detailquery = f'SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete\
+    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete\
         from checklist_task_join ct\
         join progress p on ct.checklist_id = p.checklist_id and ct.task_id = p.task_id\
         join task t on ct.task_id = t.task_id\
         join checklist c on c.checklist_id = ct.checklist_id\
         join consultant co on co.consultant_id = ct.consultant_id\
-        where p.checklist_id = {checklist_id}'
+        where p.checklist_id = {checklist_id}"
 
     cursor.execute(detailquery)
     records = cursor.fetchall()
@@ -214,6 +215,23 @@ def details(checklist_id):
 
 
 
+@app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<int:change>', methods = ["PATCH"])
+def detailprogress(checklist_id, task_id, change):
+    connection = connectPG()
+    cursor = connection.cursor()
+    date = datetime.now()
+    if change == 1:
+        update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
+        date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
+        cursor.execute(update)
+        cursor.execute(date)
+    else:
+        update = f"UPDATE progress SET iscomplete = false WHERE checklist_id = {checklist_id} and task_id = {task_id}"
+        date = f"UPDATE progress SET date_complete = null where checklist_id = {checklist_id} and task_id = {task_id}"
+        cursor.execute(update)
+        cursor.execute(date)
+    connection.commit()
+    return 'complete' #redirect(f"http://localhost:4200/confirm/{checklist_id}")
 
 
 
@@ -224,7 +242,7 @@ def details(checklist_id):
 
 
 ##################################################################
-################# Saving and Pullin Templates ####################
+################# Saving and Pulling Templates ###################
 ##################################################################
 @app.route('/savetemplate', methods = ["POST"])
 def savetemplate():
@@ -239,8 +257,8 @@ def savetemplate():
     except: name = "Un-named"
 
 
-    checklist_query = f'INSERT INTO checklist_template (isonboarding, company, checklist_name)\
-        VALUES (%s, %s, %s) RETURNING checklisttemplate_id'
+    checklist_query = f"INSERT INTO checklist_template (isonboarding, company, checklist_name)\
+        VALUES (%s, %s, %s) RETURNING checklisttemplate_id"
     cursor.execute(checklist_query, (isOnboarding, company, name))
     checklisttemplate_id = cursor.fetchone()[0]
     connection.commit()
@@ -250,10 +268,10 @@ def savetemplate():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        taskquery = f'INSERT INTO task_template (description,reminder) VALUES (%s, %s) RETURNING tasktemplate_id'
+        taskquery = f"INSERT INTO task_template (description,reminder) VALUES (%s, %s) RETURNING tasktemplate_id"
         cursor.execute(taskquery, (description, reminder))
         tasktemplate_id = cursor.fetchone()[0]
-        joinquery = f'INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})'
+        joinquery = f"INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})"
         cursor.execute(joinquery)
         connection.commit()
     cursor.close()
@@ -266,10 +284,8 @@ def savetemplate():
 def alltempaltes():
     connection = connectPG()
     cursor = connection.cursor()
-    query = f'Select ct.checklisttemplate_id, checklist_name\
-                from checklist_template ct\
-                join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
-                join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id'
+    query = "Select ct.checklisttemplate_id, checklist_name\
+                from checklist_template ct"
     cursor.execute(query)
     records = cursor.fetchall()
     colnames = ['checklisttemplate_id', 'name']
@@ -285,11 +301,11 @@ def alltempaltes():
 def gettemplate(checklisttemplate_id):
     connection = connectPG()
     cursor = connection.cursor()
-    query = f'select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
+    query = f"select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
         from checklist_template ct\
         join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
         join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
-        where ct.checklisttemplate_id = {checklisttemplate_id}'
+        where ct.checklisttemplate_id = {checklisttemplate_id}"
     cursor.execute(query)
     records = cursor.fetchall()
     tasklist = []
@@ -301,6 +317,7 @@ def gettemplate(checklisttemplate_id):
         tasklist.append(task)
     savedChecklist = {"name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
     savedChecklist['tasks'] = tasklist
+    print(savedChecklist)
     return jsonify(savedChecklist)
 
     
