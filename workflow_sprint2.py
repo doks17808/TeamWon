@@ -1,10 +1,11 @@
-from flask import request, Flask, jsonify
+from flask import request, Flask, jsonify, redirect, url_for
 from flask_cors import CORS
 import psycopg2 as pg
 from psycopg2 import Error
 from datetime import datetime
 import json 
 from flask_mail import Message, Mail
+import time
 
 app = Flask(__name__)
 
@@ -135,7 +136,10 @@ def progressUpdate(checklist_id, task_id):
     cursor.execute(update)
     cursor.execute(date)
     connection.commit()
-    return json.dumps({"Status Code 200": "Task has been marked complete"})
+    #return "Task has been marked as complete"
+    print('task complete')
+    time.sleep(5)
+    return redirect("http://localhost:4200")
 
 
 
