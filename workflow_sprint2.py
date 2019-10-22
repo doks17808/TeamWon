@@ -149,7 +149,7 @@ def details(checklist_id):
 def home():
     connection = connectPG()
     cursor = connection.cursor()
-    query = "SELECT consultant.consultant_id as consultant_id, concat(first_name, ' ', last_name) Consultant, checklist_task_join.checklist_id as cid, checklist.company as Client, checklist.isOnboarding as Transition, progress.date_complete as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(checklist_task_join.task_id) AS progress \
+    query = "SELECT consultant.consultant_id as consultant_id, concat(first_name, ' ', last_name) Consultant, checklist_task_join.checklist_id as cid, checklist.company as Client, checklist.isOnboarding as Transition, checklist_task_join.date_sent as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(checklist_task_join.task_id) AS progress \
                 FROM consultant \
                     JOIN checklist_task_join ON checklist_task_join.consultant_id = consultant.consultant_id \
                     JOIN progress ON progress.checklist_id = checklist_task_join.checklist_id \
