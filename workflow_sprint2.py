@@ -126,24 +126,27 @@ def progressUpdate(checklist_id, task_id):
 def details(checklist_id):
     connection = connectPG()
     cursor = connection.cursor()
-    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, iscomplete, date_complete\
-        from progress p\
-        join task t on p.task_id = t.task_id\
-        join checklist c on c.checklist_id = p.checklist_id\
-        join checklist_task_join ct on ct.checklist_id = c.checklist_id\
+    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete\
+        from checklist_task_join ct\
+        join progress p on ct.checklist_id = p.checklist_id and ct.task_id = p.task_id\
+        join task t on ct.task_id = t.task_id\
+        join checklist c on c.checklist_id = ct.checklist_id\
         join consultant co on co.consultant_id = ct.consultant_id\
         where p.checklist_id = {checklist_id}"
 
-
     cursor.execute(detailquery)
-    record = cursor.fetchall()
-    colnames = ['first_name','last_name','company','isOnboarding','date_sent','description','isComplete', "date_complete"]
-    results = []
-    for row in record:
-        results.append(dict(zip(colnames, row)))
-    cursor.close()
-    connection.close()
-    return jsonify(results)
+    records = cursor.fetchall()
+    tasklist = []
+    for x in range(len(records)):
+        task = {}
+        task['description'] = records[x][5]
+        task['reminder'] = records[x][6]
+        task['isComplete'] = records[x][7]
+        task['date_complete'] = records[x][8]
+        tasklist.append(task)
+    ChecklistDetails = {"first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
+    ChecklistDetails['tasks'] = tasklist
+    return jsonify(ChecklistDetails)
 
 @app.route('/home', methods = ["GET"])
 def home():
