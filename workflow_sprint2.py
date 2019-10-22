@@ -199,7 +199,7 @@ def savetemplate():
         reminder = Task[x]['reminder']
         taskquery = f"INSERT INTO task_template (description,reminder) VALUES ('{description}', '{reminder}') RETURNING tasktemplate_id"
         cursor.execute(taskquery)
-        ttid = cursor.fetchone()[0]
+        tasktemplate_id = cursor.fetchone()[0]
         joinquery = f"INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})"
         cursor.execute(joinquery)
         connection.commit()
