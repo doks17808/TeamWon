@@ -376,8 +376,7 @@ def archivetemplate(checklisttemplate_id, archive):
         update = f"UPDATE cehcklist_template SET isarchived = false WHERE checklisttemplate_id = {checklisttemplate_id}"
         cursor.execute(update)
     connection.commit()
-    return 'complete' #redirect(f"http://localhost:4200/confirm/{checklist_id}")
-
+    return json.dumps({"Status Code":200})
 
 
 if __name__ == "__main__":
