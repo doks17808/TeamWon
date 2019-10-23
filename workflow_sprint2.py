@@ -179,6 +179,8 @@ def home(checklist_id):
     try:
         (request.method == 'PATCH')
         remove = f"UPDATE checklist SET removed = true WHERE checklist_id = {checklist_id}"
+        cursor.execute(remove)
+        connection.commit()
     except:
         pass
 
