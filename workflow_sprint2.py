@@ -172,15 +172,17 @@ def progressUpdate(checklist_id, task_id):
 ##################################################################
 
 
-@app.route('/home/<checklist_id>', methods = ["GET", "PATCH"])
-def home(checklist_id):
+@app.route('/home', methods = ["GET", "PATCH"])
+def home():
     connection = connectPG()
     cursor = connection.cursor()
     try:
         (request.method == 'PATCH')
-        remove = f"UPDATE checklist SET removed = true WHERE checklist_id = {checklist_id}"
+        checklist_id = request.json['checklist_id']
+        remove = f"UPDATE checklist SET remove = true WHERE checklist_id = {checklist_id}"
         cursor.execute(remove)
         connection.commit()
+
     except:
         pass
 
@@ -189,8 +191,8 @@ def home(checklist_id):
                     JOIN checklist_task_join ON checklist_task_join.consultant_id = consultant.consultant_id \
                     JOIN progress ON progress.checklist_id = checklist_task_join.checklist_id \
                     JOIN checklist ON checklist.checklist_id = checklist_task_join.checklist_id \
-                    GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent\
-                    WHERE "
+                    WHERE checklist.remove = true\
+                    GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent"
     cursor.execute(query)
     records = cursor.fetchall()
     colnames = ['consultant_id','consultant','cid','company','isOnboarding','date','progress']
