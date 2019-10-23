@@ -181,26 +181,9 @@ def home():
         remove = f"UPDATE checklist SET remove = true WHERE checklist_id = {checklist_id}"
         cursor.execute(remove)
         connection.commit()
-        query = "SELECT consultant.consultant_id as consultant_id, concat(first_name, ' ', last_name) Consultant, checklist_task_join.checklist_id as cid, checklist.company as Client, checklist.isOnboarding as Transition, checklist_task_join.date_sent as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(checklist_task_join.task_id) AS progress \
-                    FROM consultant \
-                        JOIN checklist_task_join ON checklist_task_join.consultant_id = consultant.consultant_id \
-                        JOIN progress ON progress.checklist_id = checklist_task_join.checklist_id \
-                        JOIN checklist ON checklist.checklist_id = checklist_task_join.checklist_id \
-                        WHERE checklist.remove = false\
-                        GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent"
-        cursor.execute(query)
-        records = cursor.fetchall()
-        colnames = ['consultant_id','consultant','cid','company','isOnboarding','date','progress']
-        results = []
-        for row in records:
-                results.append(dict(zip(colnames, row)))
-        if(connection):
-                cursor.close()
-                connection.close()
-        try:
-            return jsonify(results)
-        except:
-            return jsonify(0)
+        cursor.close()
+        connection.close()
+        return json.dumps({"Status Code":200})
     else:
         query = "SELECT consultant.consultant_id as consultant_id, concat(first_name, ' ', last_name) Consultant, checklist_task_join.checklist_id as cid, checklist.company as Client, checklist.isOnboarding as Transition, checklist_task_join.date_sent as DateSent, COUNT(CASE WHEN isComplete THEN 1 END) * 100 / count(checklist_task_join.task_id) AS progress \
                 FROM consultant \
