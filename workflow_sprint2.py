@@ -87,10 +87,14 @@ def dbentry():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        taskquery = f"INSERT INTO task (description, reminder) VALUES (%s, %s) RETURNING task_id"
-        cursor.execute(taskquery, (description, reminder))
+        try:
+            html = Task[x]['html']
+        except:
+            html = 'null'
+        taskquery = f"INSERT INTO task (description, reminder, html) VALUES (%s, %s, %s) RETURNING task_id"
+        cursor.execute(taskquery, (description, reminder, html))
         task_id = cursor.fetchone()[0]
-        tidList.append({"task_id":task_id, "description":description})
+        tidList.append({"task_id":task_id, "description":description, "html":html})
         progressquery = f"INSERT INTO progress (checklist_id, task_id) VALUES ({checklist_id}, {task_id})"
         checklist_taskQuery = f"INSERT INTO checklist_task_join (checklist_id, task_id, consultant_id, date_sent) VALUES ({checklist_id}, {task_id}, {consultant_id}, '{date}')"
         cursor.execute(checklist_taskQuery)
@@ -113,8 +117,14 @@ def dbentry():
 
     task_string = ""
     for index in range(len(tidList)):
-        task_string += f"<li style= 'font-family:arial,helvetica,sans-serif;'>{tidList[index]['description']}     \
-            <a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></li>"
+        print(tidList[index]['html'])
+        if tidList[index]['html'] is 'null':
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></td></tr>"
+        else:
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td></tr>"
     print(task_string)
 
     try:
@@ -122,9 +132,10 @@ def dbentry():
         msg.html = f"<h2 style='text-align: center; font-family:arial,helvetica,sans-serif;'>{company} {transition} Checklist for {first_name} {last_name}</h2>\
             <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>To smooth the transition between engagements your team manager has compiled \
             a list of the following task that must be completed.&nbsp;</p>\
-            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p><p>&nbsp;</p><ol>{task_string}</ol>\
+            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p>\
+            <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
             <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;Thank you,</p>\
-                <p><img style='float: left;' src='https://www.daugherty.com/wp-content/uploads/2016/06/daugherty_stacked.jpg' alt='' width='238' height='74' /></p>"
+            <p><img style='float: left;' src='https://www.daugherty.com/wp-content/uploads/2016/06/daugherty_stacked.jpg' alt='' width='238' height='74' /></p>"
         mail.send(msg)
         return json.dumps({"Status Code":200})
     except:
@@ -210,18 +221,18 @@ def details(checklist_id):
         task['date_complete'] = records[x][8]
         task['task_id'] = records[x][9]
         tasklist.append(task)
-    ChecklistDetails = {"checklist_id":checklist_id, "first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
+    ChecklistDetails = {"checklist_id": checklist_id, "first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
     ChecklistDetails['tasks'] = tasklist
     return jsonify(ChecklistDetails)
 
 
 
-@app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<int:change>', methods = ["PATCH"])
+@app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<change>', methods = ["PATCH"])
 def detailprogress(checklist_id, task_id, change):
     connection = connectPG()
     cursor = connection.cursor()
     date = datetime.now()
-    if change == 1:
+    if change == 'true':
         update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
         date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
         cursor.execute(update)
