@@ -191,7 +191,7 @@ def home():
                     JOIN checklist_task_join ON checklist_task_join.consultant_id = consultant.consultant_id \
                     JOIN progress ON progress.checklist_id = checklist_task_join.checklist_id \
                     JOIN checklist ON checklist.checklist_id = checklist_task_join.checklist_id \
-                    WHERE checklist.remove = true\
+                    WHERE checklist.remove = false\
                     GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent"
     cursor.execute(query)
     records = cursor.fetchall()
