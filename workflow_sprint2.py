@@ -228,7 +228,7 @@ def details(checklist_id):
 
 
 @app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<complete>', methods = ["PATCH"])
-def detailprogress(checklist_id, task_id, change):
+def detailprogress(checklist_id, task_id, complete):
     connection = connectPG()
     cursor = connection.cursor()
     date = datetime.now()
@@ -243,7 +243,7 @@ def detailprogress(checklist_id, task_id, change):
         cursor.execute(update)
         cursor.execute(date)
     connection.commit()
-    return 'complete' #redirect(f"http://localhost:4200/confirm/{checklist_id}")
+    return json.dumps({"Status Code":200})
 
 
 
@@ -317,7 +317,7 @@ def gettemplate(checklisttemplate_id):
         from checklist_template ct\
         join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
         join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
-        where ct.checklisttemplate_id = {checklisttemplate_id} and ct.isarchived = 'false'"
+        where ct.checklisttemplate_id = {checklisttemplate_id} and ct.isarchived = false"
     cursor.execute(query)
     records = cursor.fetchall()
     if len(records) == 0:
