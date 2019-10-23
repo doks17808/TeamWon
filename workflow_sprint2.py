@@ -131,7 +131,7 @@ def dbentry():
         msg = Message(f"{company} {transition} Checklist for {first_name} {last_name}", sender="donotreply.daughertytransitions@gmail.com", recipients=[f"{email}"])
         msg.html = f"<h2 style='text-align: center; font-family:arial,helvetica,sans-serif;'>{company} {transition} Checklist for {first_name} {last_name}</h2>\
             <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>To smooth the transition between engagements your team manager has compiled \
-            a list of the following task that must be completed.&nbsp;</p>\
+            a list of the following tasks that must be completed.&nbsp;</p>\
             <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p>\
             <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
             <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;Thank you,</p>\
@@ -227,12 +227,12 @@ def details(checklist_id):
 
 
 
-@app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<change>', methods = ["PATCH"])
+@app.route('/detailprogress/<int:checklist_id>/<int:task_id>/<complete>', methods = ["PATCH"])
 def detailprogress(checklist_id, task_id, change):
     connection = connectPG()
     cursor = connection.cursor()
     date = datetime.now()
-    if change == 'true':
+    if complete == 'true':
         update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
         date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
         cursor.execute(update)
@@ -297,7 +297,7 @@ def alltempaltes():
     connection = connectPG()
     cursor = connection.cursor()
     query = "Select ct.checklisttemplate_id, checklist_name\
-                from checklist_template ct"
+                from checklist_template ct where isarchived = false"
     cursor.execute(query)
     records = cursor.fetchall()
     colnames = ['checklisttemplate_id', 'name']
@@ -317,22 +317,40 @@ def gettemplate(checklisttemplate_id):
         from checklist_template ct\
         join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
         join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
-        where ct.checklisttemplate_id = {checklisttemplate_id}"
+        where ct.checklisttemplate_id = {checklisttemplate_id} and ct.isarchived = 'false'"
     cursor.execute(query)
     records = cursor.fetchall()
-    tasklist = []
-    print(records)
-    for x in range(len(records)):
-        task = {}
-        task['description'] = records[x][4]
-        task['reminder'] = records[x][5]
-        tasklist.append(task)
-    savedChecklist = {"name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
-    savedChecklist['tasks'] = tasklist
-    print(savedChecklist)
-    return jsonify(savedChecklist)
+    if len(records) == 0:
+        return 'template does not exist'
+    else:
+        tasklist = []
+        for x in range(len(records)):
+            task = {}
+            task['description'] = records[x][4]
+            task['reminder'] = records[x][5]
+            tasklist.append(task)
+        savedChecklist = {"name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
+        savedChecklist['tasks'] = tasklist
+        print(savedChecklist)
+        return jsonify(savedChecklist)
 
-    
+
+
+@app.route('/archivetemplate/<int:checklisttemplate_id>/<archive>', methods = ["PATCH"])
+def archivetemplate(checklisttemplate_id, archive):
+    connection = connectPG()
+    cursor = connection.cursor()
+    if archive == 'true':
+        update = f"UPDATE checklist_template SET isarchived = true WHERE checklisttemplate_id = {checklisttemplate_id}"
+        cursor.execute(update)
+    else:
+        update = f"UPDATE cehcklist_template SET isarchived = false WHERE checklisttemplate_id = {checklisttemplate_id}"
+        cursor.execute(update)
+    connection.commit()
+    return 'complete' #redirect(f"http://localhost:4200/confirm/{checklist_id}")
+
+
+
 if __name__ == "__main__":
 
     app.run(debug=True)
