@@ -210,20 +210,20 @@ def home():
                     JOIN checklist ON checklist.checklist_id = checklist_task_join.checklist_id \
                     WHERE checklist.remove = false\
                     GROUP BY consultant.consultant_id, cid, Consultant, Client, Transition, DateSent"
-    cursor.execute(query)
-    records = cursor.fetchall()
-    colnames = ['consultant_id','consultant','cid','company','isOnboarding','date','progress']
+        cursor.execute(query)
+        records = cursor.fetchall()
+        colnames = ['consultant_id','consultant','cid','company','isOnboarding','date','progress']
 
-    results = []
-    for row in records:
-            results.append(dict(zip(colnames, row)))
-    if(connection):
-            cursor.close()
-            connection.close()
-    try:
-        return jsonify(results)
-    except:
-        return jsonify(0)
+        results = []
+        for row in records:
+                results.append(dict(zip(colnames, row)))
+        if(connection):
+                cursor.close()
+                connection.close()
+        try:
+            return jsonify(results)
+        except:
+            return jsonify(0)
 
 
 @app.route('/details/<int:checklist_id>', methods = ["GET"])
