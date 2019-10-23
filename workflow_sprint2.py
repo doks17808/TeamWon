@@ -191,7 +191,7 @@ def home():
 def details(checklist_id):
     connection = connectPG()
     cursor = connection.cursor()
-    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete\
+    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete, t.task_id\
         from checklist_task_join ct\
         join progress p on ct.checklist_id = p.checklist_id and ct.task_id = p.task_id\
         join task t on ct.task_id = t.task_id\
@@ -208,8 +208,9 @@ def details(checklist_id):
         task['reminder'] = records[x][6]
         task['isComplete'] = records[x][7]
         task['date_complete'] = records[x][8]
+        task['task_id'] = records[x][9]
         tasklist.append(task)
-    ChecklistDetails = {"first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
+    ChecklistDetails = {"checklist_id":checklist_id, "first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
     ChecklistDetails['tasks'] = tasklist
     return jsonify(ChecklistDetails)
 
