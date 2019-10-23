@@ -320,6 +320,26 @@ def alltempaltes():
     return jsonify(results)
 
 
+
+@app.route('/searchtemplates', methods = ["GET"])
+def searchtempaltes():
+    connection = connectPG()
+    cursor = connection.cursor()
+    qstring = request.json['query']
+    query = f"Select ct.checklisttemplate_id, checklist_name\
+                from checklist_template ct where isarchived = false and checklist_name ILIKE '%{qstring}%'"
+    cursor.execute(query)
+    records = cursor.fetchall()
+    colnames = ['checklisttemplate_id', 'name']
+    results = []
+    for row in records:
+            results.append(dict(zip(colnames, row)))
+    cursor.close()
+    connection.close()
+    return jsonify(results)
+
+
+
 @app.route('/gettemplate/<int:checklisttemplate_id>', methods = ["GET"])
 def gettemplate(checklisttemplate_id):
     connection = connectPG()
