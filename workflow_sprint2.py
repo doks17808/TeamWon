@@ -178,7 +178,7 @@ def home():
     cursor = connection.cursor()
     try:
         (request.method == 'PATCH')
-        checklist_id = request.json['checklist_id']
+        checklist_id = request.json["cid"]
         remove = f"UPDATE checklist SET remove = true WHERE checklist_id = {checklist_id}"
         cursor.execute(remove)
         connection.commit()
