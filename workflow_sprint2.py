@@ -204,8 +204,6 @@ def home(checklist_id):
     except:
         return jsonify(0)
 
-@app.route('/details/<int:checklist_id>', methods = ["PATCH"])
-def details(checklist_id):
 
 @app.route('/details/<int:checklist_id>', methods = ["GET"])
 def details(checklist_id):
