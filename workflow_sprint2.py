@@ -277,11 +277,6 @@ def savetemplate():
     #Inserting into Checklist_template Table
     isOnboarding = request.json['isOnboarding']
     company = request.json['company']
-    try:
-        name = request.json['name']
-    except: name = "Un-named"
-
-
     checklist_query = f"INSERT INTO checklist_template (isonboarding, company, checklist_name)\
         VALUES (%s, %s, %s) RETURNING checklisttemplate_id"
     cursor.execute(checklist_query, (isOnboarding, company, name))
