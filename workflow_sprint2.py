@@ -266,6 +266,9 @@ def detailprogress(checklist_id, task_id, complete):
 
 
 
+
+
+
 ##################################################################
 ################# Saving and Pulling Templates ###################
 ##################################################################
@@ -277,6 +280,7 @@ def savetemplate():
     #Inserting into Checklist_template Table
     isOnboarding = request.json['isOnboarding']
     company = request.json['company']
+    name = request.json['name']
     checklist_query = f"INSERT INTO checklist_template (isonboarding, company, checklist_name)\
         VALUES (%s, %s, %s) RETURNING checklisttemplate_id"
     cursor.execute(checklist_query, (isOnboarding, company, name))
