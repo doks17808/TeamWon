@@ -289,16 +289,20 @@ def savetemplate():
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
-        taskquery = f"INSERT INTO task_template (description,reminder) VALUES (%s, %s) RETURNING tasktemplate_id"
-        cursor.execute(taskquery, (description, reminder))
+        try:
+            html = Task[x]['html']
+        except:
+            html = 'null'
+        taskquery = f"INSERT INTO task (description, reminder, html) VALUES (%s, %s, %s) RETURNING task_id"
+        cursor.execute(taskquery, (description, reminder, html))
         tasktemplate_id = cursor.fetchone()[0]
         joinquery = f"INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})"
         cursor.execute(joinquery)
         connection.commit()
     cursor.close()
     connection.close()
-
     return json.dumps({"Status Code":200})
+
 
 
 @app.route('/alltemplates', methods = ["GET"])
