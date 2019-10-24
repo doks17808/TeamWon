@@ -120,11 +120,12 @@ def dbentry():
         print(tidList[index]['html'])
         if tidList[index]['html'] is 'null':
             task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
+                <td> </td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></td></tr>"
         else:
             task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td></tr>"
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click Here to Mark As Complete</a></td></tr>"
     print(task_string)
 
     try:
@@ -211,7 +212,7 @@ def home():
 def details(checklist_id):
     connection = connectPG()
     cursor = connection.cursor()
-    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete, t.task_id\
+    detailquery = f"SELECT first_name, last_name, company, isonboarding, date_sent, description, reminder, iscomplete, date_complete, t.task_id, t.html\
         from checklist_task_join ct\
         join progress p on ct.checklist_id = p.checklist_id and ct.task_id = p.task_id\
         join task t on ct.task_id = t.task_id\
@@ -229,6 +230,7 @@ def details(checklist_id):
         task['isComplete'] = records[x][7]
         task['date_complete'] = records[x][8]
         task['task_id'] = records[x][9]
+        task['html'] =records[x][10]
         tasklist.append(task)
     ChecklistDetails = {"checklist_id": checklist_id, "first_name":records[0][0], "last_name":records[0][1], "company":records[0][2], "isOnboarding":records[0][3], "date_sent":records[0][4]}
     ChecklistDetails['tasks'] = tasklist
