@@ -297,7 +297,7 @@ def savetemplate():
             html = Task[x]['html']
         except:
             html = 'null'
-        taskquery = f"INSERT INTO task (description, reminder, html) VALUES (%s, %s, %s) RETURNING task_id"
+        taskquery = f"INSERT INTO task_template (description, reminder, html) VALUES (%s, %s, %s) RETURNING tasktemplate_id"
         cursor.execute(taskquery, (description, reminder, html))
         tasktemplate_id = cursor.fetchone()[0]
         joinquery = f"INSERT INTO template_join (checklisttemplate_id, tasktemplate_id) VALUES ({checklisttemplate_id},{tasktemplate_id})"
