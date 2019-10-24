@@ -350,7 +350,7 @@ def searchtempaltes():
 def gettemplate(checklisttemplate_id):
     connection = connectPG()
     cursor = connection.cursor()
-    query = f"select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder\
+    query = f"select ct.checklisttemplate_id, ct.checklist_name, isonboarding, company, description, reminder, html\
         from checklist_template ct\
         join template_join tj on ct.checklisttemplate_id = tj.checklisttemplate_id\
         join task_template tt on tt.tasktemplate_id = tj.tasktemplate_id\
@@ -365,6 +365,7 @@ def gettemplate(checklisttemplate_id):
             task = {}
             task['description'] = records[x][4]
             task['reminder'] = records[x][5]
+            task['html'] = records[x][6]
             tasklist.append(task)
         savedChecklist = {"name":records[0][1], "isOnboarding":records[0][2], "company":records[0][3]}
         savedChecklist['tasks'] = tasklist
