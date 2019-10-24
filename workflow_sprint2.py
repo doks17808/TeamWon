@@ -6,6 +6,7 @@ from datetime import datetime
 import json 
 from flask_mail import Message, Mail
 import time
+import pytz
 
 app = Flask(__name__)
 
@@ -83,7 +84,8 @@ def dbentry():
     #Inserting into Task Table and status table
     Task = request.json['tasks']
     tidList = []
-    date = datetime.now()
+    date = (datetime.now()).astimezone(pytz.timezone("Etc/GMT"))
+    timezone = pytz.timezone("Etc/GMT")
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
@@ -148,7 +150,7 @@ def dbentry():
 def progressUpdate(checklist_id, task_id):
     connection = connectPG()
     cursor = connection.cursor()
-    date = datetime.now()
+    date = (datetime.now()).astimezone(pytz.timezone("Etc/GMT"))
     update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
     date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
     cursor.execute(update)
@@ -242,7 +244,8 @@ def details(checklist_id):
 def detailprogress(checklist_id, task_id, complete):
     connection = connectPG()
     cursor = connection.cursor()
-    date = datetime.now()
+    date = (datetime.now()).astimezone(pytz.timezone("Etc/GMT"))
+    print(date)
     if complete == 'true':
         update = f"UPDATE progress SET iscomplete = true WHERE checklist_id = {checklist_id} and task_id = {task_id}"
         date = f"UPDATE progress SET date_complete = '{date}' where checklist_id = {checklist_id} and task_id = {task_id}"
