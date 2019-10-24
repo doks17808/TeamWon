@@ -85,7 +85,6 @@ def dbentry():
     Task = request.json['tasks']
     tidList = []
     date = (datetime.now()).astimezone(pytz.timezone("Etc/GMT"))
-    timezone = pytz.timezone("Etc/GMT")
     for x in range(len(Task)):
         description = Task[x]['description']
         reminder = Task[x]['reminder']
@@ -138,7 +137,7 @@ def dbentry():
             <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p>\
             <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
             <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;Thank you,</p>\
-            <p><img style='float: left;' src='https://www.daugherty.com/wp-content/uploads/2016/06/daugherty_stacked.jpg' alt='' width='238' height='74' /></p>"
+            <p><img style='float: left;' src='https://github.com/doks17808/TeamWon/blob/master/daugherty_stacked.jpg?raw=true' alt='' width='238' height='74' /></p>"
         mail.send(msg)
         return json.dumps({"Status Code":200})
     except:
