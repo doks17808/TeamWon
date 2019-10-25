@@ -120,14 +120,14 @@ def dbentry():
     for index in range(len(tidList)):
         print(tidList[index]['html'])
         if (tidList[index]['html'] is 'null') or (tidList[index]['html'] is None):
-            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px; list-style:disc outside none; display:list-item;'>\
-                {tidList[index]['description']}</td>\
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
+                <p style='list-style:disc outside none; display:list-item'>{tidList[index]['description']}</p></td>\
                 <td> </td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
                 <a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>"
         else:
-            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px; list-style:disc outside none; display:list-item;'>\
-                {tidList[index]['description']}</td>\
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
+                <p style='list-style:disc outside none; display:list-item'>{tidList[index]['description']}</p></td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px; '><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>"
 
