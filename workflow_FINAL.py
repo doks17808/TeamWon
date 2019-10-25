@@ -139,9 +139,9 @@ def dbentry():
             a list of the following tasks that must be completed.&nbsp;</p>\
             <p style="text-align: center; font-family:arial,helvetica,sans-serif;">Please complete each task and click the link to mark the task as completed.</p>\
             <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
-            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">&nbsp;\
+            <p style="text-align: left; font-family:arial,helvetica,sans-serif;">&nbsp;\
                 <a href="http://localhost:4200/confirm/{checklist_id}">Click here to view checklist details webpage.</a></p>\
-            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">&nbsp;Thank you,</p>\
+            <p style="text-align: left; font-family:arial,helvetica,sans-serif;">&nbsp;Thank you,</p>\
             <p><img style="float: left:" src="https://github.com/doks17808/TeamWon/blob/master/daugherty_stacked.jpg?raw=true" alt="" width="238" height="74" /></p>'
         mail.send(msg)
         return json.dumps({"Status Code":200})
