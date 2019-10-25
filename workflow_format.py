@@ -130,7 +130,7 @@ def dbentry():
         else:
             task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
                 <ul><li>{tidList[index]['description']}</ul></li></td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px; '><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px; word-wrap:break-word'><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 100px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>\
                 <tr></tr>"
             print(task_string)
@@ -141,7 +141,7 @@ def dbentry():
             <p style="text-align: center; font-family:arial,helvetica,sans-serif;">To smooth the transition between engagements your team manager has compiled \
             a list of the following tasks that must be completed.&nbsp;</p>\
             <p style="text-align: center; font-family:arial,helvetica,sans-serif;">Please complete each task and click the link to mark the task as completed.</p>\
-            <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
+            <p>&nbsp;</p><table table-layout: fixed><tbody>{task_string}</tbody></table>\
             <p style="text-align: left; font-family:arial,helvetica,sans-serif;">&nbsp;\
                 <a href="http://localhost:4200/confirm/{checklist_id}">Click here to view checklist details webpage.</a></p>\
             <p style="text-align: left; font-family:arial,helvetica,sans-serif;">&nbsp;Thank you,</p>\
