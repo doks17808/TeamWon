@@ -119,27 +119,30 @@ def dbentry():
     task_string = ""
     for index in range(len(tidList)):
         print(tidList[index]['html'])
-        if tidList[index]['html'] is 'null':
-            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
+        if (tidList[index]['html'] is 'null') or (tidList[index]['html'] is None):
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px; list-style:disc outside none; display:list-item;'>\
+                {tidList[index]['description']}</td>\
                 <td> </td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>"
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
+                <a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>"
         else:
-            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>{tidList[index]['description']}</td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
+            task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px; list-style:disc outside none; display:list-item;'>\
+                {tidList[index]['description']}</td>\
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px; '><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>"
-    print(task_string)
+
 
     try:
         msg = Message(f"{company} {transition} Checklist for {first_name} {last_name}", sender="donotreply.daughertytransitions@gmail.com", recipients=[f"{email}"])
-        msg.html = f"<h2 style='text-align: center; font-family:arial,helvetica,sans-serif;'>{company} {transition} Checklist for {first_name} {last_name}</h2>\
-            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>To smooth the transition between engagements your team manager has compiled \
+        msg.html = f'<h2 style="text-align: center; font-family:arial,helvetica,sans-serif;">{company} {transition} Checklist for {first_name} {last_name}</h2>\
+            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">To smooth the transition between engagements your team manager has compiled \
             a list of the following tasks that must be completed.&nbsp;</p>\
-            <p style='text-align: left; font-family:arial,helvetica,sans-serif;'>Please complete each task and click the link to mark the task as completed.</p>\
+            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">Please complete each task and click the link to mark the task as completed.</p>\
             <p>&nbsp;</p><table><tbody>{task_string}</tbody></table>\
-            <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;\
-                <a href='http://localhost:4200/confirm/{checklist_id}'>Click here to view checklist details webpage.</a></p>\
-            <p style= 'text-align: left; font-family:arial,helvetica,sans-serif;'>&nbsp;Thank you,</p>\
-            <p><img style='float: left;' src='https://github.com/doks17808/TeamWon/blob/master/daugherty_stacked.jpg?raw=true' alt='' width='238' height='74' /></p>"
+            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">&nbsp;\
+                <a href="http://localhost:4200/confirm/{checklist_id}">Click here to view checklist details webpage.</a></p>\
+            <p style="text-align: center; font-family:arial,helvetica,sans-serif;">&nbsp;Thank you,</p>\
+            <p><img style="float: left:" src="https://github.com/doks17808/TeamWon/blob/master/daugherty_stacked.jpg?raw=true" alt="" width="238" height="74" /></p>'
         mail.send(msg)
         return json.dumps({"Status Code":200})
     except:
@@ -158,6 +161,8 @@ def progressUpdate(checklist_id, task_id):
     cursor.execute(date)
     connection.commit()
     return redirect(f"http://localhost:4200/confirm/{checklist_id}")
+
+
 
 
 
@@ -259,6 +264,9 @@ def detailprogress(checklist_id, task_id, complete):
         cursor.execute(date)
     connection.commit()
     return json.dumps({"Status Code":200})
+
+
+
 
 
 
