@@ -125,14 +125,13 @@ def dbentry():
                 <td> </td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
                 <a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>\
-                <tr></tr>"
+                <tr></tr><tr></tr><tr></tr>"
         else:
             task_string += f"<tr><td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'>\
                 {tidList[index]['description']}</td>\
                 <td style= 'font-family:arial,helvetica,sans-serif; width: 250px; '><a href='{tidList[index]['html']}'>'{tidList[index]['html']}'</a></td>\
-                <td style= 'font-family:arial,helvetica,sans-serif; width: 250px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>\
-                <tr></tr>"
-
+                <td style= 'font-family:arial,helvetica,sans-serif; width: 100px;'><a href='http://127.0.0.1:5000/progress/{checklist_id}/{tidList[index]['task_id']}'>Click here to mark as complete.</a></td></tr>\
+                <tr></tr><tr></tr><tr></tr>"
 
     try:
         msg = Message(f"{company} {transition} Checklist for {first_name} {last_name}", sender="donotreply.daughertytransitions@gmail.com", recipients=[f"{email}"])
